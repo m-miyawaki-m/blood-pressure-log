@@ -25,9 +25,10 @@ function measurementField(container, day, period, name, type, label) {
   input.type = type;
   input.setAttribute('aria-label', `${day}日 ${period} ${label}`.trim());
   if (type === 'number') {
-    input.min = '1';
+    input.min = name === 'weight' ? '0.1' : '1';
     input.max = '999';
-    input.inputMode = 'numeric';
+    input.step = name === 'weight' ? '0.1' : '1';
+    input.inputMode = name === 'weight' ? 'decimal' : 'numeric';
   }
   if (type === 'checkbox') {
     input.checked = records[key] === true;
@@ -42,7 +43,9 @@ function measurementField(container, day, period, name, type, label) {
   };
   input.addEventListener('input', () => {
     if (!input.validity.valid) {
-      status.textContent = '数値は1〜999の整数で入力してください。';
+      status.textContent = name === 'weight'
+        ? '体重は0.1〜999 kgの範囲で、小数第1位まで入力してください。'
+        : '数値は1〜999の整数で入力してください。';
       return;
     }
     records[key] = value();
@@ -66,7 +69,7 @@ function makeTable(first, last) {
   const table = document.createElement('table');
   table.setAttribute('aria-label', label);
   const widths = document.createElement('colgroup');
-  for (const width of [7, 13, 6, 15, 8, 13, 6, 15, 8, 9]) {
+  for (const width of [6, 13, 5, 13, 7, 8, 13, 5, 13, 7, 10]) {
     const column = document.createElement('col');
     column.style.width = `${width}%`;
     widths.append(column);
@@ -77,6 +80,10 @@ function makeTable(first, last) {
   const columns = head.insertRow();
   cell(groups, 'th', '測定日', { rowspan: 2, scope: 'col' });
   for (const [period, className] of [['朝', 'morning'], ['夜', 'night']]) {
+    if (period === '夜') {
+      cell(groups, 'th', '昼', { class: 'noon' });
+      cell(columns, 'th', '体重 (kg)', { scope: 'col', class: 'noon' });
+    }
     cell(groups, 'th', period, { colspan: 4, class: className });
     for (const heading of ['測定時刻', '服薬', '血圧 (mmHg)', '脈拍/分']) {
       cell(columns, 'th', heading, { scope: 'col', class: className });
@@ -88,6 +95,9 @@ function makeTable(first, last) {
     const row = body.insertRow();
     cell(row, 'th', String(day), { scope: 'row' });
     for (const period of ['朝', '夜']) {
+      if (period === '夜') {
+        measurementField(row.insertCell(), day, '昼', 'weight', 'number', '体重 (kg)');
+      }
       measurementField(row.insertCell(), day, period, 'time', 'time', '測定時刻');
       measurementField(row.insertCell(), day, period, 'med', 'checkbox', '服薬');
       const pressure = row.insertCell();

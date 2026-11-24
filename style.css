@@ -15,6 +15,7 @@ table { border-collapse: collapse; width: 100%; table-layout: fixed; background:
 th, td { border: 1px solid #a9bdc6; padding: 0.15rem; text-align: center; }
 thead th { padding-block: 0.4rem; background: #dcecf1; }
 .night { background: #e4e9f6; }
+.noon { background: #e5efe4; }
 tbody tr:nth-child(even) { background: #f5f9fb; }
 tbody tr { height: 9mm; }
 td input { width: 100%; min-width: 0; height: 7mm; box-sizing: border-box; border: 1px solid transparent; border-radius: 0.2rem; background: transparent; text-align: center; padding: 0.1rem; }
