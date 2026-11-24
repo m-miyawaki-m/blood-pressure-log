@@ -21,14 +21,10 @@ tbody tr:nth-child(even) { background: #f5f9fb; }
 tbody tr { height: 9mm; }
 .memo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #trends { margin-top: 2rem; }
-#trend-range { font: inherit; padding: 0.4rem; }
+#trend-range, #trend-period { font: inherit; padding: 0.4rem; }
 #trend-dates { margin: 0.6rem 0 1rem; }
 .trend-card { max-width: 62rem; padding: 1rem; border: 1px solid #a9bdc6; border-radius: 0.5rem; background: white; }
 .trend-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0 0 0.25rem; font-size: 0.875rem; }
-.trend-legend span::before { content: "●"; margin-right: 0.3em; }
-.trend-legend .sys { color: #a44437; }
-.trend-legend .dia { color: #205ba0; }
-.trend-legend .weight { color: #18735c; }
 .trend-plot .weight-axis { fill: #18735c; }
 .trend-plot { display: block; width: 100%; height: auto; }
 .trend-plot text { fill: #435e6d; font-size: 18px; }

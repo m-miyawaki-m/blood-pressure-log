@@ -1,17 +1,19 @@
 const dayMilliseconds = 86400000;
 const trendMonthInput = document.querySelector('#month');
 const trendRangeInput = document.querySelector('#trend-range');
-const trendPeriods = ['朝', '昼', '夜'];
+const trendPeriodInput = document.querySelector('#trend-period');
 let trendRecords = {};
-const bloodPressureSeries = [
+const pressureFields = [
   { key: 'sys', label: '最高血圧', color: '#a44437' },
   { key: 'dia', label: '最低血圧', color: '#205ba0' },
 ];
 const weightSeries = [{ key: 'weight', label: '体重', color: '#18735c', dashed: true }];
-const trendAxes = [
-  { series: bloodPressureSeries, unit: 'mmHg', label: '血圧（mmHg）', step: 10 },
-  { series: weightSeries, unit: 'kg', label: '体重（kg）', step: 0.5, right: true },
-];
+
+function pressureSeries(periods) {
+  return periods.flatMap(period => pressureFields.map(field => ({
+    ...field, key: period + ':' + field.key, label: period + 'の' + field.label, dashed: period === '夜',
+  })));
+}
 
 function trendDate(year, month, day) {
   const date = new Date(0);
@@ -24,7 +26,7 @@ function trendNumber(value) {
   return Number.isFinite(number) && number > 0 ? number : null;
 }
 
-function trendPoints(start, end) {
+function trendPoints(start, end, periods) {
   const points = [];
   let previousMonth;
   let local;
@@ -42,11 +44,10 @@ function trendPoints(start, end) {
     }
     const entry = trendRecords[month]?.[day] ?? {};
     const point = { date, weight: trendNumber(entry.weight ?? local[day + ':昼:weight']) };
-    for (const { key } of bloodPressureSeries) {
-      const values = trendPeriods.map(period => trendNumber(
-        entry[period]?.[key] ?? local[[day, period, key].join(':')],
-      )).filter(value => value !== null);
-      point[key] = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+    for (const period of periods) {
+      for (const { key } of pressureFields) {
+        point[period + ':' + key] = trendNumber(entry[period]?.[key] ?? local[[day, period, key].join(':')]);
+      }
     }
     points.push(point);
   }
@@ -76,8 +77,12 @@ function trendScale(points, series, minimumStep) {
   return { lower, upper, step };
 }
 
-function renderTrendChart(container, points, ticks) {
+function renderTrendChart(container, points, ticks, pressure) {
   container.replaceChildren();
+  const trendAxes = [
+    { series: pressure, unit: 'mmHg', label: '血圧（mmHg）', step: 10 },
+    { series: weightSeries, unit: 'kg', label: '体重（kg）', step: 0.5, right: true },
+  ];
   const axes = trendAxes.map(axis => ({ ...axis, scale: trendScale(points, axis.series, axis.step) }));
   if (!axes.some(axis => axis.scale)) {
     const empty = document.createElement('p');
@@ -146,11 +151,21 @@ function renderTrends() {
   const firstMonth = Math.max(month - months, (1 - year) * 12);
   const start = trendDate(year, firstMonth, 1);
   const end = trendDate(year, month, 0);
-  const points = trendPoints(start, end);
+  const periods = trendPeriodInput.value === 'both' ? ['朝', '夜'] : [trendPeriodInput.value];
+  const pressure = pressureSeries(periods);
+  const points = trendPoints(start, end, periods);
   const ticks = Array.from({ length: 5 }, (_, index) => Math.round(index * (points.length - 1) / 4));
   const formatted = date => date.toISOString().slice(0, 10).replaceAll('-', '/');
   document.querySelector('#trend-dates').textContent = formatted(start) + ' 〜 ' + formatted(end);
-  renderTrendChart(document.querySelector('#combined-chart'), points, ticks);
+  const legend = document.querySelector('#trend-legend');
+  legend.replaceChildren();
+  for (const { label, color, dashed } of [...pressure, ...weightSeries]) {
+    const item = document.createElement('span');
+    item.textContent = (dashed ? '┄ ' : '━ ') + label;
+    item.style.color = color;
+    legend.append(item);
+  }
+  renderTrendChart(document.querySelector('#combined-chart'), points, ticks, pressure);
   document.querySelector('#record-link').href = './?month=' + trendMonthInput.value;
 }
 
@@ -172,6 +187,7 @@ trendMonthInput.addEventListener('change', () => {
   renderTrends();
 });
 trendRangeInput.addEventListener('change', renderTrends);
+trendPeriodInput.addEventListener('change', renderTrends);
 renderTrends();
 fetch('records.json', { cache: 'no-cache' })
   .then(response => {

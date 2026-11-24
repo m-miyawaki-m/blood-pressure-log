@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>血圧と体重の推移</title>
-<link rel="stylesheet" href="style.css?v=dual-axis">
-<script src="trends.js?v=dual-axis" defer></script>
+<link rel="stylesheet" href="style.css?v=dayparts">
+<script src="trends.js?v=dayparts" defer></script>
 </head>
 <body>
 <main>
@@ -19,14 +19,15 @@
       <option value="6">6か月</option>
       <option value="12">12か月</option>
     </select></label>
+    <label>血圧 <select id="trend-period">
+      <option value="朝">朝</option>
+      <option value="夜">夜</option>
+      <option value="both">朝＋夜</option>
+    </select></label>
     <p id="trend-dates"></p>
     <p id="trend-status" role="status"></p>
     <section class="trend-card" aria-label="血圧と体重の折れ線グラフ">
-      <p class="trend-legend">
-        <span class="sys">最高血圧（日平均）</span>
-        <span class="dia">最低血圧（日平均）</span>
-        <span class="weight">体重</span>
-      </p>
+      <p class="trend-legend" id="trend-legend"></p>
       <div id="combined-chart"></div>
     </section>
   </section>
