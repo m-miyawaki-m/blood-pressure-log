@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>血圧と体重の推移</title>
+<link rel="stylesheet" href="style.css?v=trend-page">
+<script src="trends.js?v=trend-page" defer></script>
+</head>
+<body>
+<main>
+  <nav><a id="record-link" href="./">血圧記録表に戻る</a></nav>
+  <section id="trends" aria-labelledby="trends-title">
+    <h1 id="trends-title">血圧と体重の推移</h1>
+    <label>記録月 <input id="month" type="month" required></label>
+    <label>表示期間 <select id="trend-range">
+      <option value="1">1か月</option>
+      <option value="3" selected>3か月</option>
+      <option value="6">6か月</option>
+      <option value="12">12か月</option>
+    </select></label>
+    <p id="trend-dates"></p>
+    <p id="trend-status" role="status"></p>
+    <div class="trend-grid">
+      <section class="trend-card">
+        <h3>血圧の日平均（mmHg）</h3>
+        <p class="trend-legend"><span class="sys">最高血圧</span><span class="dia">最低血圧</span></p>
+        <div id="pressure-chart"></div>
+      </section>
+      <section class="trend-card">
+        <h3>体重（kg）</h3>
+        <div id="weight-chart"></div>
+      </section>
+    </div>
+  </section>
+  <noscript>グラフを見るには JavaScript を有効にしてください。</noscript>
+</main>
+</body>
+</html>

@@ -85,7 +85,7 @@ function render() {
   }
   document.querySelector('#month-title').textContent = `${year}年${month}月 血圧記録表`;
   sheet.replaceChildren(makeTable(1, 17), makeTable(18, end.getDate()));
-  renderTrends();
+  document.querySelector('#trend-link').href = 'trends.html?month=' + monthInput.value;
 }
 
 function shiftMonth(offset) {
@@ -97,7 +97,9 @@ function shiftMonth(offset) {
   render();
 }
 
-let selectedMonth = monthValue(new Date());
+const requestedMonth = new URLSearchParams(location.search).get('month');
+let selectedMonth = /^[0-9]{4}-(0[1-9]|1[0-2])$/.test(requestedMonth) && !requestedMonth.startsWith('0000')
+  ? requestedMonth : monthValue(new Date());
 monthInput.value = selectedMonth;
 monthInput.addEventListener('change', () => {
   if (!/^[0-9]{4}-(0[1-9]|1[0-2])$/.test(monthInput.value) || monthInput.value.startsWith('0000')) {
@@ -116,7 +118,6 @@ document.querySelector('#next').addEventListener('click', () => {
   selectedMonth = monthInput.value;
 });
 document.querySelector('#print').addEventListener('click', () => window.print());
-document.querySelector('#trend-range').addEventListener('change', renderTrends);
 render();
 fetch('records.json', { cache: 'no-cache' })
   .then(response => {

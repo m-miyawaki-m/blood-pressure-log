@@ -38,7 +38,7 @@ input:focus-visible, button:focus-visible, .paper-viewport:focus-visible { outli
 @media print {
   :root, table, tbody tr:nth-child(even) { color: black; background: white; }
   main { padding: 0; }
-  header, #trends { display: none; }
+  header { display: none; }
   .paper-viewport { overflow: visible; margin: 0; }
   .paper { width: auto; height: auto; padding: 0; }
   table { font-size: 8pt; }

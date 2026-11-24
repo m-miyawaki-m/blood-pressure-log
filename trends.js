@@ -1,4 +1,8 @@
 const dayMilliseconds = 86400000;
+const trendMonthInput = document.querySelector('#month');
+const trendRangeInput = document.querySelector('#trend-range');
+const trendPeriods = ['朝', '昼', '夜'];
+let trendRecords = {};
 const bloodPressureSeries = [
   { key: 'sys', label: '最高血圧', color: '#a44437' },
   { key: 'dia', label: '最低血圧', color: '#205ba0' },
@@ -27,15 +31,15 @@ function trendPoints(start, end) {
     if (month !== previousMonth) {
       previousMonth = month;
       try {
-        local = JSON.parse(localStorage.getItem(storagePrefix + month)) ?? {};
+        local = JSON.parse(localStorage.getItem('blood-pressure-log:v1:' + month)) ?? {};
       } catch {
         local = {};
       }
     }
-    const entry = publishedRecords[month]?.[day] ?? {};
+    const entry = trendRecords[month]?.[day] ?? {};
     const point = { date, weight: trendNumber(entry.weight ?? local[day + ':昼:weight']) };
     for (const { key } of bloodPressureSeries) {
-      const values = periods.map(([period]) => trendNumber(
+      const values = trendPeriods.map(period => trendNumber(
         entry[period]?.[key] ?? local[[day, period, key].join(':')],
       )).filter(value => value !== null);
       point[key] = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
@@ -107,8 +111,8 @@ function renderTrendChart(container, points, series, unit, ticks, minimumStep) {
 }
 
 function renderTrends() {
-  const [year, month] = monthInput.value.split('-').map(Number);
-  const months = Number(document.querySelector('#trend-range').value);
+  const [year, month] = trendMonthInput.value.split('-').map(Number);
+  const months = Number(trendRangeInput.value);
   const firstMonth = Math.max(month - months, (1 - year) * 12);
   const start = trendDate(year, firstMonth, 1);
   const end = trendDate(year, month, 0);
@@ -118,4 +122,37 @@ function renderTrends() {
   document.querySelector('#trend-dates').textContent = formatted(start) + ' 〜 ' + formatted(end);
   renderTrendChart(document.querySelector('#pressure-chart'), points, bloodPressureSeries, 'mmHg', ticks, 10);
   renderTrendChart(document.querySelector('#weight-chart'), points, weightSeries, 'kg', ticks, 0.5);
+  document.querySelector('#record-link').href = './?month=' + trendMonthInput.value;
 }
+
+function validTrendMonth(value) {
+  return /^[0-9]{4}-(0[1-9]|1[0-2])$/.test(value) && !value.startsWith('0000');
+}
+
+const today = new Date();
+const currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+const linkedMonth = new URLSearchParams(location.search).get('month');
+let selectedTrendMonth = validTrendMonth(linkedMonth) ? linkedMonth : currentMonth;
+trendMonthInput.value = selectedTrendMonth;
+trendMonthInput.addEventListener('change', () => {
+  if (!validTrendMonth(trendMonthInput.value)) {
+    trendMonthInput.value = selectedTrendMonth;
+    return;
+  }
+  selectedTrendMonth = trendMonthInput.value;
+  renderTrends();
+});
+trendRangeInput.addEventListener('change', renderTrends);
+renderTrends();
+fetch('records.json', { cache: 'no-cache' })
+  .then(response => {
+    if (!response.ok) throw new Error('Could not load published records');
+    return response.json();
+  })
+  .then(data => {
+    trendRecords = data;
+    renderTrends();
+  })
+  .catch(() => {
+    document.querySelector('#trend-status').textContent = '公開記録を読み込めませんでした。';
+  });
