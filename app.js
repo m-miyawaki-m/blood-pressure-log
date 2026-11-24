@@ -62,20 +62,24 @@ function measurementField(container, day, period, name, type, label) {
 function makeTable(first, last) {
   const wrapper = document.createElement('div');
   wrapper.className = 'table-wrap';
-  wrapper.tabIndex = 0;
-  wrapper.setAttribute('role', 'region');
   const label = `${first}日〜${last}日`;
-  wrapper.setAttribute('aria-label', label);
   const table = document.createElement('table');
   table.setAttribute('aria-label', label);
+  const widths = document.createElement('colgroup');
+  for (const width of [7, 13, 6, 15, 8, 13, 6, 15, 8, 9]) {
+    const column = document.createElement('col');
+    column.style.width = `${width}%`;
+    widths.append(column);
+  }
+  table.append(widths);
   const head = table.createTHead();
   const groups = head.insertRow();
   const columns = head.insertRow();
-  cell(groups, 'th', '測定日', { rowspan: 2, scope: 'col', class: 'day' });
+  cell(groups, 'th', '測定日', { rowspan: 2, scope: 'col' });
   for (const [period, className] of [['朝', 'morning'], ['夜', 'night']]) {
     cell(groups, 'th', period, { colspan: 4, class: className });
-    for (const [heading, width] of [['測定時刻', 'time'], ['服薬', 'med'], ['血圧 (mmHg)', 'pressure'], ['脈拍/分', 'pulse']]) {
-      cell(columns, 'th', heading, { scope: 'col', class: `${className} ${width}` });
+    for (const heading of ['測定時刻', '服薬', '血圧 (mmHg)', '脈拍/分']) {
+      cell(columns, 'th', heading, { scope: 'col', class: className });
     }
   }
   cell(groups, 'th', '生活メモ', { rowspan: 2, scope: 'col' });
@@ -122,7 +126,7 @@ function render() {
     records = {};
     status.textContent = 'このブラウザの保存データを読み込めませんでした。';
   }
-  document.querySelector('#month-title').textContent = `${year}年${month}月`;
+  document.querySelector('#month-title').textContent = `${year}年${month}月 血圧記録表`;
   sheet.replaceChildren(makeTable(1, 17), makeTable(18, end.getDate()));
 }
 
