@@ -19,25 +19,16 @@ thead th { padding-block: 0.4rem; background: #dcecf1; }
 .noon { background: #e5efe4; }
 tbody tr:nth-child(even) { background: #f5f9fb; }
 tbody tr { height: 9mm; }
-td input { width: 100%; min-width: 0; height: 7mm; box-sizing: border-box; border: 1px solid transparent; border-radius: 0.2rem; background: transparent; text-align: center; padding: 0.1rem; }
-td input[type=number] { appearance: textfield; }
-td input[type=number]::-webkit-inner-spin-button { appearance: none; }
-td input[type=time] { padding-inline: 0; font-size: 0.6875rem; }
-td input[type=time]::-webkit-calendar-picker-indicator { display: none; }
-td input[type=checkbox] { width: 0.9rem; min-height: 0.9rem; margin: 0; vertical-align: middle; accent-color: #17647c; }
-.pair { display: flex; align-items: center; }
-.pair input { min-width: 0; padding-inline: 0; }
+.memo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 input:focus-visible, button:focus-visible, .paper-viewport:focus-visible { outline: 2px solid #17647c; outline-offset: -2px; background: white; }
-.print-value { display: none; }
 @page { size: A4 landscape; margin: 8mm; }
 @media print {
   :root, table, tbody tr:nth-child(even) { color: black; background: white; }
   main { padding: 0; }
-  header, td input, .pair { display: none; }
+  header { display: none; }
   .paper-viewport { overflow: visible; margin: 0; }
   .paper { width: auto; height: auto; padding: 0; }
   table { font-size: 8pt; }
   th, td { padding-inline: 0.05rem; overflow-wrap: anywhere; }
-  .print-value { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   tr { break-inside: avoid; }
 }

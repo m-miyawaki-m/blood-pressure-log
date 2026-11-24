@@ -2,7 +2,7 @@ const monthInput = document.querySelector('#month');
 const sheet = document.querySelector('#sheet');
 const status = document.querySelector('#status');
 const storagePrefix = 'blood-pressure-log:v1:';
-const savedMessage = '入力はこのブラウザに自動保存されます。';
+const viewMessage = '閲覧専用';
 const periods = [['朝', 'morning'], ['昼', 'noon'], ['夜', 'night']];
 let records = {};
 
@@ -18,51 +18,6 @@ function cell(row, tag, label, attributes = {}) {
   }
   row.append(element);
   return element;
-}
-
-function measurementField(container, day, period, name, type, label) {
-  // Keep the original storage key for weight entries made before it had its own column.
-  const storagePeriod = name === 'weight' ? '昼' : period;
-  const key = `${day}:${storagePeriod}:${name}`;
-  const input = document.createElement('input');
-  input.type = type;
-  input.setAttribute('aria-label', `${day}日 ${period} ${label}`.trim());
-  if (type === 'number') {
-    input.min = name === 'weight' ? '0.1' : '1';
-    input.max = '999';
-    input.step = name === 'weight' ? '0.1' : '1';
-    input.inputMode = name === 'weight' ? 'decimal' : 'numeric';
-  }
-  if (type === 'checkbox') {
-    input.checked = records[key] === true;
-  } else {
-    input.value = records[key] ?? '';
-  }
-  const value = () => type === 'checkbox' ? input.checked : input.value;
-  const printValue = document.createElement('span');
-  printValue.className = 'print-value';
-  const updatePrint = () => {
-    printValue.textContent = type === 'checkbox' ? (input.checked ? '✓' : '') : input.value;
-  };
-  input.addEventListener('input', () => {
-    if (!input.validity.valid) {
-      status.textContent = name === 'weight'
-        ? '体重は0.1〜999 kgの範囲で、小数第1位まで入力してください。'
-        : '数値は1〜999の整数で入力してください。';
-      return;
-    }
-    records[key] = value();
-    updatePrint();
-    try {
-      localStorage.setItem(storagePrefix + monthInput.value, JSON.stringify(records));
-      status.textContent = savedMessage;
-    } catch {
-      status.textContent = 'このブラウザに保存できませんでした。';
-    }
-  });
-  updatePrint();
-  container.append(input, printValue);
-  return input;
 }
 
 function makeTable(first, last) {
@@ -95,29 +50,18 @@ function makeTable(first, last) {
     const row = body.insertRow();
     cell(row, 'th', String(day), { scope: 'row' });
     for (const [period] of periods) {
-      measurementField(row.insertCell(), day, period, 'time', 'time', '測定時刻');
-      measurementField(row.insertCell(), day, period, 'med', 'checkbox', '服薬');
-      const pressure = row.insertCell();
-      const pair = document.createElement('div');
-      pair.className = 'pair';
-      measurementField(pair, day, period, 'sys', 'number', '最高血圧');
-      pair.append('/');
-      measurementField(pair, day, period, 'dia', 'number', '最低血圧');
-      pressure.append(pair);
-      const printPressure = document.createElement('span');
-      printPressure.className = 'print-value';
-      const updatePressure = () => {
-        const sys = records[`${day}:${period}:sys`] ?? '';
-        const dia = records[`${day}:${period}:dia`] ?? '';
-        printPressure.textContent = sys || dia ? `${sys} / ${dia}` : '';
-      };
-      pair.addEventListener('input', updatePressure);
-      updatePressure();
-      pressure.append(printPressure);
-      measurementField(row.insertCell(), day, period, 'pulse', 'number', '脈拍');
+      const key = day + ':' + period + ':';
+      const sys = records[key + 'sys'] ?? '';
+      const dia = records[key + 'dia'] ?? '';
+      cell(row, 'td', records[key + 'time'] ?? '');
+      cell(row, 'td', records[key + 'med'] === true ? '✓' : '');
+      cell(row, 'td', sys || dia ? sys + ' / ' + dia : '');
+      cell(row, 'td', records[key + 'pulse'] ?? '');
     }
-    measurementField(row.insertCell(), day, '', 'weight', 'number', '体重 (kg)');
-    measurementField(row.insertCell(), day, '', 'memo', 'text', '生活メモ');
+    // Keep reading the original daily weight key.
+    cell(row, 'td', records[day + ':昼:weight'] ?? '');
+    const memo = records[day + '::memo'] ?? '';
+    cell(row, 'td', memo, { class: 'memo', title: memo });
   }
   wrapper.append(table);
   return wrapper;
@@ -127,7 +71,7 @@ function render() {
   const [year, month] = monthInput.value.split('-').map(Number);
   const end = new Date(2000, month, 0);
   end.setFullYear(year, month, 0);
-  status.textContent = savedMessage;
+  status.textContent = viewMessage;
   try {
     records = JSON.parse(localStorage.getItem(storagePrefix + monthInput.value)) ?? {};
   } catch {
