@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>血圧と体重の推移</title>
-<link rel="stylesheet" href="style.css?v=trend-page">
-<script src="trends.js?v=trend-page" defer></script>
+<link rel="stylesheet" href="style.css?v=dual-axis">
+<script src="trends.js?v=dual-axis" defer></script>
 </head>
 <body>
 <main>
@@ -21,17 +21,14 @@
     </select></label>
     <p id="trend-dates"></p>
     <p id="trend-status" role="status"></p>
-    <div class="trend-grid">
-      <section class="trend-card">
-        <h3>血圧の日平均（mmHg）</h3>
-        <p class="trend-legend"><span class="sys">最高血圧</span><span class="dia">最低血圧</span></p>
-        <div id="pressure-chart"></div>
-      </section>
-      <section class="trend-card">
-        <h3>体重（kg）</h3>
-        <div id="weight-chart"></div>
-      </section>
-    </div>
+    <section class="trend-card" aria-label="血圧と体重の折れ線グラフ">
+      <p class="trend-legend">
+        <span class="sys">最高血圧（日平均）</span>
+        <span class="dia">最低血圧（日平均）</span>
+        <span class="weight">体重</span>
+      </p>
+      <div id="combined-chart"></div>
+    </section>
   </section>
   <noscript>グラフを見るには JavaScript を有効にしてください。</noscript>
 </main>

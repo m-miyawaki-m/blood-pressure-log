@@ -7,7 +7,11 @@ const bloodPressureSeries = [
   { key: 'sys', label: '最高血圧', color: '#a44437' },
   { key: 'dia', label: '最低血圧', color: '#205ba0' },
 ];
-const weightSeries = [{ key: 'weight', label: '体重', color: '#18735c' }];
+const weightSeries = [{ key: 'weight', label: '体重', color: '#18735c', dashed: true }];
+const trendAxes = [
+  { series: bloodPressureSeries, unit: 'mmHg', label: '血圧（mmHg）', step: 10 },
+  { series: weightSeries, unit: 'kg', label: '体重（kg）', step: 0.5, right: true },
+];
 
 function trendDate(year, month, day) {
   const date = new Date(0);
@@ -57,20 +61,9 @@ function chartElement(parent, tag, attributes, label = '') {
   return element;
 }
 
-function renderTrendChart(container, points, series, unit, ticks, minimumStep) {
-  container.replaceChildren();
+function trendScale(points, series, minimumStep) {
   const values = series.flatMap(({ key }) => points.map(point => point[key]).filter(value => value !== null));
-  if (!values.length) {
-    const empty = document.createElement('p');
-    empty.textContent = 'この期間の記録はありません。';
-    container.append(empty);
-    return;
-  }
-
-  const left = 64;
-  const right = 754;
-  const top = 18;
-  const bottom = 214;
+  if (!values.length) return null;
   const min = Math.min(...values);
   const max = Math.max(...values);
   const step = Math.max(minimumStep, Math.ceil((max - min) / (4 * minimumStep)) * minimumStep);
@@ -80,28 +73,65 @@ function renderTrendChart(container, points, series, unit, ticks, minimumStep) {
     lower -= step;
     upper += step;
   }
-  const x = index => left + index * (right - left) / (points.length - 1);
-  const y = value => bottom - (value - lower) * (bottom - top) / (upper - lower);
-  const plot = chartElement(container, 'svg', {
-    viewBox: '0 0 780 254', class: 'trend-plot', role: 'img',
-    'aria-label': series.map(({ label }) => label).join('・') + 'の折れ線グラフ（' + unit + '）',
-  });
+  return { lower, upper, step };
+}
 
-  for (let value = lower; value <= upper; value += step) {
-    const height = y(value);
-    chartElement(plot, 'line', { x1: left, y1: height, x2: right, y2: height, class: 'grid' });
-    chartElement(plot, 'text', { x: left - 8, y: height + 6, 'text-anchor': 'end' }, value.toFixed(minimumStep < 1 ? 1 : 0));
+function renderTrendChart(container, points, ticks) {
+  container.replaceChildren();
+  const axes = trendAxes.map(axis => ({ ...axis, scale: trendScale(points, axis.series, axis.step) }));
+  if (!axes.some(axis => axis.scale)) {
+    const empty = document.createElement('p');
+    empty.textContent = 'この期間の記録はありません。';
+    container.append(empty);
+    return;
+  }
+
+  const left = 74;
+  const right = 706;
+  const top = 38;
+  const bottom = 310;
+  const x = index => left + index * (right - left) / (points.length - 1);
+  const plot = chartElement(container, 'svg', {
+    viewBox: '0 0 780 350', class: 'trend-plot', role: 'img',
+    'aria-label': '血圧と体重の折れ線グラフ。左軸は血圧（mmHg）、右軸は体重（kg）',
+  });
+  const gridAxis = axes.find(axis => axis.scale);
+  for (const axis of axes) {
+    const edge = axis.right ? right : left;
+    const colorClass = axis.right ? 'weight-axis' : '';
+    chartElement(plot, 'text', { x: edge, y: 21, 'text-anchor': axis.right ? 'end' : 'start', class: colorClass }, axis.label);
+    if (!axis.scale) continue;
+    const { lower, upper, step } = axis.scale;
+    const y = value => bottom - (value - lower) * (bottom - top) / (upper - lower);
+    chartElement(plot, 'line', { x1: edge, y1: top, x2: edge, y2: bottom, class: 'grid' });
+    for (let value = lower; value <= upper; value += step) {
+      const height = y(value);
+      if (axis === gridAxis) {
+        chartElement(plot, 'line', { x1: left, y1: height, x2: right, y2: height, class: 'grid' });
+      }
+      chartElement(plot, 'line', { x1: edge, y1: height, x2: edge + (axis.right ? 5 : -5), y2: height, class: 'grid' });
+      chartElement(plot, 'text', {
+        x: edge + (axis.right ? 8 : -8), y: height + 6,
+        'text-anchor': axis.right ? 'start' : 'end', class: colorClass,
+      }, value.toFixed(axis.step < 1 ? 1 : 0));
+    }
+    drawTrendSeries(plot, points, axis.series, axis.unit, x, y);
   }
   for (const index of ticks) {
     const date = points[index].date;
     const label = (date.getUTCMonth() + 1) + '/' + date.getUTCDate();
     chartElement(plot, 'text', { x: x(index), y: bottom + 26, 'text-anchor': 'middle' }, label);
   }
+}
 
-  for (const { key, label, color } of series) {
+function drawTrendSeries(plot, points, series, unit, x, y) {
+  for (const { key, label, color, dashed } of series) {
     const coordinates = points.map((point, index) => point[key] === null ? '' :
       (index && points[index - 1][key] !== null ? 'L' : 'M') + x(index) + ',' + y(point[key]));
-    chartElement(plot, 'path', { d: coordinates.join(' '), fill: 'none', stroke: color, 'stroke-width': 2.5 });
+    chartElement(plot, 'path', {
+      d: coordinates.join(' '), fill: 'none', stroke: color, 'stroke-width': 2.5,
+      'stroke-dasharray': dashed ? '7 4' : 'none',
+    });
     points.forEach((point, index) => {
       if (point[key] === null) return;
       const dot = chartElement(plot, 'circle', { cx: x(index), cy: y(point[key]), r: 3, fill: color });
@@ -120,8 +150,7 @@ function renderTrends() {
   const ticks = Array.from({ length: 5 }, (_, index) => Math.round(index * (points.length - 1) / 4));
   const formatted = date => date.toISOString().slice(0, 10).replaceAll('-', '/');
   document.querySelector('#trend-dates').textContent = formatted(start) + ' 〜 ' + formatted(end);
-  renderTrendChart(document.querySelector('#pressure-chart'), points, bloodPressureSeries, 'mmHg', ticks, 10);
-  renderTrendChart(document.querySelector('#weight-chart'), points, weightSeries, 'kg', ticks, 0.5);
+  renderTrendChart(document.querySelector('#combined-chart'), points, ticks);
   document.querySelector('#record-link').href = './?month=' + trendMonthInput.value;
 }
 
