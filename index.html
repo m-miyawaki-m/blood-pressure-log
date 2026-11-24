@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>血圧記録表</title>
-<link rel="stylesheet" href="style.css?v=readonly">
-<script src="app.js?v=published-records" defer></script>
+<link rel="stylesheet" href="style.css?v=trends">
+<script src="trends.js?v=trends" defer></script>
+<script src="app.js?v=trends" defer></script>
 </head>
 <body>
 <main>
@@ -16,6 +17,7 @@
       <label>記録月 <input id="month" type="month" required></label>
       <button id="next" type="button">翌月</button>
       <button id="print" type="button">印刷</button>
+      <a href="#trends">グラフを見る</a>
     </div>
     <p id="status" role="status">閲覧専用</p>
   </header>
@@ -25,6 +27,27 @@
       <div id="sheet"></div>
     </section>
   </div>
+  <section id="trends" aria-labelledby="trends-title">
+    <h2 id="trends-title">血圧と体重の推移</h2>
+    <label>表示期間 <select id="trend-range">
+      <option value="1">1か月</option>
+      <option value="3" selected>3か月</option>
+      <option value="6">6か月</option>
+      <option value="12">12か月</option>
+    </select></label>
+    <p id="trend-dates"></p>
+    <div class="trend-grid">
+      <section class="trend-card">
+        <h3>血圧の日平均（mmHg）</h3>
+        <p class="trend-legend"><span class="sys">最高血圧</span><span class="dia">最低血圧</span></p>
+        <div id="pressure-chart"></div>
+      </section>
+      <section class="trend-card">
+        <h3>体重（kg）</h3>
+        <div id="weight-chart"></div>
+      </section>
+    </div>
+  </section>
   <noscript>記録表を使うには JavaScript を有効にしてください。</noscript>
 </main>
 </body>

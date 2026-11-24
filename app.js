@@ -85,6 +85,7 @@ function render() {
   }
   document.querySelector('#month-title').textContent = `${year}年${month}月 血圧記録表`;
   sheet.replaceChildren(makeTable(1, 17), makeTable(18, end.getDate()));
+  renderTrends();
 }
 
 function shiftMonth(offset) {
@@ -115,6 +116,7 @@ document.querySelector('#next').addEventListener('click', () => {
   selectedMonth = monthInput.value;
 });
 document.querySelector('#print').addEventListener('click', () => window.print());
+document.querySelector('#trend-range').addEventListener('change', renderTrends);
 render();
 fetch('records.json', { cache: 'no-cache' })
   .then(response => {

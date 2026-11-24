@@ -20,12 +20,25 @@ thead th { padding-block: 0.4rem; background: #dcecf1; }
 tbody tr:nth-child(even) { background: #f5f9fb; }
 tbody tr { height: 9mm; }
 .memo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#trends { margin-top: 2rem; }
+#trend-range { font: inherit; padding: 0.4rem; }
+#trend-dates { margin: 0.6rem 0 1rem; }
+.trend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 32rem), 1fr)); gap: 1rem; }
+.trend-card { min-width: 0; padding: 1rem; border: 1px solid #a9bdc6; border-radius: 0.5rem; background: white; }
+.trend-card h3 { margin: 0 0 0.5rem; }
+.trend-legend { display: flex; gap: 1rem; margin: 0 0 0.25rem; font-size: 0.875rem; }
+.trend-legend span::before { content: "●"; margin-right: 0.3em; }
+.trend-legend .sys { color: #a44437; }
+.trend-legend .dia { color: #205ba0; }
+.trend-plot { display: block; width: 100%; height: auto; }
+.trend-plot text { fill: #435e6d; font-size: 18px; }
+.trend-plot .grid { stroke: #d8e3ea; }
 input:focus-visible, button:focus-visible, .paper-viewport:focus-visible { outline: 2px solid #17647c; outline-offset: -2px; background: white; }
 @page { size: A4 landscape; margin: 8mm; }
 @media print {
   :root, table, tbody tr:nth-child(even) { color: black; background: white; }
   main { padding: 0; }
-  header { display: none; }
+  header, #trends { display: none; }
   .paper-viewport { overflow: visible; margin: 0; }
   .paper { width: auto; height: auto; padding: 0; }
   table { font-size: 8pt; }
