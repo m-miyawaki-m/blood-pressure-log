@@ -1,0 +1,43 @@
+:root { font-family: system-ui, sans-serif; color: #162b3a; background: #f1f6f8; }
+body { margin: 0; }
+main { max-width: 1500px; margin: auto; padding: clamp(0.75rem, 3vw, 2.5rem); }
+h1 { margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; margin: 1.5rem 0 0.6rem; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+button, input { font: inherit; color: inherit; }
+button, #month { min-height: 2.75rem; padding: 0.25rem 0.6rem; border: 1px solid #829da9; border-radius: 0.4rem; background: white; box-sizing: border-box; }
+button { cursor: pointer; }
+#status { margin-bottom: 0; }
+#sheet { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; table-layout: fixed; background: white; font-size: 0.875rem; }
+th, td { border: 1px solid #a9bdc6; padding: 0.15rem; text-align: center; }
+thead th { padding-block: 0.4rem; background: #dcecf1; }
+.night { background: #e4e9f6; }
+tbody tr:nth-child(even) { background: #f5f9fb; }
+.day, .med { width: 2.5rem; }
+.time, .pulse { width: 4.5rem; }
+.pressure { width: 6.75rem; }
+td input { width: 100%; min-height: 2.35rem; box-sizing: border-box; border: 1px solid transparent; border-radius: 0.2rem; background: transparent; text-align: center; padding: 0.1rem; }
+td input[type=checkbox] { width: 1.2rem; min-height: 1.2rem; margin: 0; vertical-align: middle; accent-color: #17647c; }
+.pair { display: flex; align-items: center; gap: 0.15rem; }
+.pair input { min-width: 0; }
+input:focus-visible, button:focus-visible, .table-wrap:focus-visible { outline: 2px solid #17647c; outline-offset: -2px; background: white; }
+.print-value { display: none; }
+@media (max-width: 1360px) { #sheet { grid-template-columns: 1fr; } }
+@page { size: A4 landscape; margin: 8mm; }
+@media print {
+  :root, table, tbody tr:nth-child(even) { color: black; background: white; }
+  main { padding: 0; }
+  h1, h2 { margin: 0 0 0.35rem; }
+  .toolbar, #status, td input, .pair { display: none; }
+  #sheet { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5mm; }
+  .table-wrap { overflow: visible; }
+  table { min-width: 0; font-size: 8pt; }
+  th, td { padding: 0.8mm; overflow-wrap: anywhere; }
+  .day, .med { width: 7%; }
+  .time, .pulse { width: 10%; }
+  .pressure { width: 13%; }
+  .print-value { display: inline; white-space: pre-wrap; }
+  tr { break-inside: avoid; }
+}
