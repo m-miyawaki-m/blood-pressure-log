@@ -3,11 +3,11 @@
     "23": {"朝":{"med":true},"夜":{"time":"19:07","sys":"104","dia":"67","pulse":"59","med":true},"weight":"105.8"},
     "24": {"朝":{"time":"07:30","sys":"104","dia":"70","pulse":"62","med":true},"夜":{"time":"19:01","sys":"99","dia":"66","pulse":"61","med":true},"weight":"105.2"},
     "25": {"朝":{"time":"07:55","sys":"103","dia":"63","pulse":"54","med":true},"夜":{"time":"20:30","sys":"107","dia":"73","pulse":"73","med":true},"weight":"105.6"},
-    "26": {"朝":{"sys":"106","dia":"71","pulse":"58","med":true},"夜":{"time":"22:30","sys":"112","dia":"70","pulse":"63","med":true},"weight":"106.8"},
+    "26": {"朝":{"sys":"106","dia":"71","pulse":"58","med":true,"time":"07:40"},"夜":{"time":"22:30","sys":"112","dia":"70","pulse":"63","med":true},"weight":"106.8"},
     "27": {"朝":{"time":"06:00","sys":"114","dia":"75","pulse":"60","med":true},"夜":{"time":"21:30","sys":"115","dia":"78","pulse":"62","med":true},"weight":"105.6"},
     "28": {"朝":{"time":"07:00","sys":"102","dia":"62","pulse":"60","med":true},"夜":{"time":"21:00","sys":"101","dia":"65","pulse":"60","med":true},"weight":"105.4"},
-    "29": {"朝":{"time":"07:00","sys":"106","dia":"77","pulse":"68","med":true},"夜":{"time":"21:00","dia":"76","pulse":"67","med":true},"weight":"104.8"},
-    "30": {"朝":{"time":"07:00","sys":"108","dia":"75","pulse":"58","med":true},"夜":{"sys":"102","dia":"76","pulse":"62","med":true},"weight":"105.0"},
+    "29": {"朝":{"time":"07:00","sys":"106","dia":"77","pulse":"68","med":true},"夜":{"time":"21:00","dia":"76","pulse":"67","med":true,"sys":"109"},"weight":"104.8"},
+    "30": {"朝":{"time":"07:00","sys":"108","dia":"75","pulse":"58","med":true},"夜":{"sys":"102","dia":"76","pulse":"62","med":true,"time":"21:00"},"weight":"105.0"},
     "31": {"朝":{"time":"07:00","sys":"111","dia":"75","pulse":"59","med":true},"夜":{"time":"21:00","sys":"108","dia":"69","pulse":"62","med":true},"weight":"105.4"}
   },
   "2026-11": {
