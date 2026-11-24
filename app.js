@@ -3,6 +3,7 @@ const sheet = document.querySelector('#sheet');
 const status = document.querySelector('#status');
 const storagePrefix = 'blood-pressure-log:v1:';
 const savedMessage = '入力はこのブラウザに自動保存されます。';
+const periods = [['朝', 'morning'], ['昼', 'noon'], ['夜', 'night']];
 let records = {};
 
 function monthValue(date) {
@@ -20,7 +21,9 @@ function cell(row, tag, label, attributes = {}) {
 }
 
 function measurementField(container, day, period, name, type, label) {
-  const key = `${day}:${period}:${name}`;
+  // Keep the original storage key for weight entries made before it had its own column.
+  const storagePeriod = name === 'weight' ? '昼' : period;
+  const key = `${day}:${storagePeriod}:${name}`;
   const input = document.createElement('input');
   input.type = type;
   input.setAttribute('aria-label', `${day}日 ${period} ${label}`.trim());
@@ -69,7 +72,7 @@ function makeTable(first, last) {
   const table = document.createElement('table');
   table.setAttribute('aria-label', label);
   const widths = document.createElement('colgroup');
-  for (const width of [6, 13, 5, 13, 7, 8, 13, 5, 13, 7, 10]) {
+  for (const width of [4, 9, 4, 10, 4, 9, 4, 10, 4, 9, 4, 10, 4, 7, 8]) {
     const column = document.createElement('col');
     column.style.width = `${width}%`;
     widths.append(column);
@@ -79,25 +82,19 @@ function makeTable(first, last) {
   const groups = head.insertRow();
   const columns = head.insertRow();
   cell(groups, 'th', '測定日', { rowspan: 2, scope: 'col' });
-  for (const [period, className] of [['朝', 'morning'], ['夜', 'night']]) {
-    if (period === '夜') {
-      cell(groups, 'th', '昼', { class: 'noon' });
-      cell(columns, 'th', '体重 (kg)', { scope: 'col', class: 'noon' });
-    }
+  for (const [period, className] of periods) {
     cell(groups, 'th', period, { colspan: 4, class: className });
-    for (const heading of ['測定時刻', '服薬', '血圧 (mmHg)', '脈拍/分']) {
+    for (const heading of ['時刻', '服薬', '血圧 (mmHg)', '脈拍/分']) {
       cell(columns, 'th', heading, { scope: 'col', class: className });
     }
   }
+  cell(groups, 'th', '体重 (kg)', { rowspan: 2, scope: 'col' });
   cell(groups, 'th', '生活メモ', { rowspan: 2, scope: 'col' });
   const body = table.createTBody();
   for (let day = first; day <= last; day++) {
     const row = body.insertRow();
     cell(row, 'th', String(day), { scope: 'row' });
-    for (const period of ['朝', '夜']) {
-      if (period === '夜') {
-        measurementField(row.insertCell(), day, '昼', 'weight', 'number', '体重 (kg)');
-      }
+    for (const [period] of periods) {
       measurementField(row.insertCell(), day, period, 'time', 'time', '測定時刻');
       measurementField(row.insertCell(), day, period, 'med', 'checkbox', '服薬');
       const pressure = row.insertCell();
@@ -119,6 +116,7 @@ function makeTable(first, last) {
       pressure.append(printPressure);
       measurementField(row.insertCell(), day, period, 'pulse', 'number', '脈拍');
     }
+    measurementField(row.insertCell(), day, '', 'weight', 'number', '体重 (kg)');
     measurementField(row.insertCell(), day, '', 'memo', 'text', '生活メモ');
   }
   wrapper.append(table);
